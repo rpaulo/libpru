@@ -6,5 +6,3 @@ set_property(TARGET pru PROPERTY SOVERSION "1")
 set(CMAKE_C_FLAGS "-Weverything -Werror")
 install(TARGETS pru DESTINATION lib)
 install(FILES libpru.h DESTINATION include)
-
-
