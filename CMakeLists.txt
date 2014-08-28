@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+project(libpru)
+add_library(pru SHARED pru.c ti-pru.c)
+add_definitions(-I${CMAKE_SOURCE_DIR})
+set_property(TARGET pru PROPERTY SOVERSION "1")
+set(CMAKE_C_FLAGS "-Weverything -Werror")
+install(TARGETS pru DESTINATION lib)
+install(FILES libpru.h DESTINATION include)
+
+
