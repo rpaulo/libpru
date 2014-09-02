@@ -39,8 +39,10 @@ typedef enum {
 pru_type_t pru_name_to_type(const char *);
 pru_t	pru_alloc(pru_type_t);
 void	pru_free(pru_t);
-void	pru_list(pru_t);
-void	pru_set_handler(pru_t);
+#ifdef __BLOCKS__
+void	pru_set_handler(pru_t, void (^handler)(void));
+#endif
+void	pru_set_handler_f(pru_t);
 int	pru_reset(pru_t, unsigned int);
 int	pru_disable(pru_t, unsigned int);
 int	pru_enable(pru_t, unsigned int);

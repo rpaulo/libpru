@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -119,6 +120,27 @@ ti_upload(pru_t pru, unsigned int pru_number, const char *buffer, size_t size)
 	return 0;
 }
 
+static int
+ti_wait(pru_t pru, unsigned int pru_number)
+{
+	unsigned int reg;
+	struct timespec ts;
+
+	/* 0.5 seconds */
+	ts.tv_nsec = 500000000;
+	ts.tv_sec = 0;
+	if (pru_number > 1)
+		return -1;
+	if (pru->md_stor[0] == AM18XX_REV)
+		reg = AM18XX_PRUnCTL(pru_number);
+	else
+		reg = AM33XX_PRUnCTL(pru_number);
+	while (ti_reg_read_4(pru->mem, reg) != 0x8000)
+		nanosleep(&ts, NULL);
+
+	return 0;
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -151,7 +173,7 @@ ti_initialise(pru_t pru)
 		return -1;
 	}
 	/*
-	 * Use the md_stor fields to save the register addresses.
+	 * Use the md_stor field to save the revision.
 	 */
 	if (ti_reg_read_4(pru->mem, AM18XX_INTC_REG) == AM18XX_REV)
 		pru->md_stor[0] = AM18XX_REV;
@@ -166,6 +188,7 @@ ti_initialise(pru_t pru)
 	pru->enable = ti_enable;
 	pru->reset = ti_reset;
 	pru->upload_buffer = ti_upload;
+	pru->wait = ti_wait;
 
 	return 0;
 }

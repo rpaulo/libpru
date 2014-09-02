@@ -52,6 +52,7 @@ pru_t
 pru_alloc(pru_type_t type)
 {
 	pru_t pru;
+	int savederrno;
 
 	pru = malloc(sizeof(*pru));
 	if (pru == NULL)
@@ -62,12 +63,15 @@ pru_alloc(pru_type_t type)
 	case PRU_TYPE_AM18XX:
 	case PRU_TYPE_AM33XX:
 		if (ti_initialise(pru) != 0) {
+			savederrno = errno;
 			free(pru);
+			errno = savederrno;
 			return NULL;
 		}
 		break;
 	case PRU_TYPE_UNKNOWN:
 		free(pru);
+		errno = EINVAL;
 		return NULL;
 	}
 
@@ -81,14 +85,17 @@ pru_free(pru_t pru)
 	free(pru);
 }
 
+#ifdef __BLOCKS__
 void
-pru_list(pru_t pru)
+pru_set_handler(pru_t pru, void (^handler)(void))
 {
 	(void)pru;
+	handler();
 }
+#endif
 
 void
-pru_set_handler(pru_t pru)
+pru_set_handler_f(pru_t pru)
 {
 	(void)pru;
 }
