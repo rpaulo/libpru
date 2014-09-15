@@ -29,6 +29,7 @@
 #include <string.h>
 #include <time.h>
 
+#include <sys/errno.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/cdefs.h>
@@ -141,6 +142,13 @@ ti_wait(pru_t pru, unsigned int pru_number)
 	return 0;
 }
 
+static int
+ti_check_intr(pru_t pru)
+{
+	(void)pru;
+	return 0;
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -157,7 +165,7 @@ ti_initialise(pru_t pru)
 			break;
 	}
 	if (fd < 0)
-		return -1;
+		return EINVAL;
 	pru->fd = fd;
 	/* N.B.: The order matters. */
 	for (i = 0; i < sizeof(mmap_sizes)/sizeof(mmap_sizes[0]); i++) {
@@ -170,7 +178,7 @@ ti_initialise(pru_t pru)
 	}
 	if (pru->mem == NULL) {
 		close(pru->fd);
-		return -1;
+		return ENOMEM;
 	}
 	/*
 	 * Use the md_stor field to save the revision.
@@ -182,13 +190,14 @@ ti_initialise(pru_t pru)
 	else {
 		munmap(pru->mem, mmap_size);
 		close(pru->fd);
-		return -1;
+		return EINVAL;
 	}
 	pru->disable = ti_disable;
 	pru->enable = ti_enable;
 	pru->reset = ti_reset;
 	pru->upload_buffer = ti_upload;
 	pru->wait = ti_wait;
-
+	pru->check_intr = ti_check_intr;
+	
 	return 0;
 }

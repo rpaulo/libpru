@@ -28,6 +28,7 @@
 struct pru {
 	int fd;
 	pru_type_t type;
+	pthread_t thread;
 	/* Abstraction layer */
 	char *mem;
 	unsigned int md_stor[4];
@@ -36,5 +37,10 @@ struct pru {
 	int (*reset)(pru_t, unsigned int);
 	int (*upload_buffer)(pru_t, unsigned int, const char *, size_t);
 	int (*wait)(pru_t, unsigned int);
-	
+	int (*check_intr)(pru_t);
+	int (*deinit)(pru_t);
+	void (*intr_func)(void);
+#ifdef __BLOCKS__
+	void (^intr_block)(void);
+#endif
 };

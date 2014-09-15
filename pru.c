@@ -28,6 +28,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
+#include <Block.h>
+#include <pthread.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -46,6 +48,25 @@ pru_name_to_type(const char *name)
 		return PRU_TYPE_AM33XX;
 	else
 		return PRU_TYPE_UNKNOWN;
+}
+
+static void *
+pru_handle_intr(void *arg)
+{
+	pru_t pru;
+
+	pru = arg;
+	while (pru->check_intr(pru) > 0) {
+#ifdef __BLOCKS__
+		if (pru->intr_block)
+			pru->intr_block();
+		else
+#endif
+		if (pru->intr_func)
+			pru->intr_func();
+	}
+
+	return (NULL);
 }
 
 pru_t
@@ -70,34 +91,46 @@ pru_alloc(pru_type_t type)
 		}
 		break;
 	case PRU_TYPE_UNKNOWN:
-		free(pru);
+		pru_free(pru);
 		errno = EINVAL;
+		return NULL;
+	}
+	/*
+	 * Create a thread to handle interrupts.
+	 */
+	if (pthread_create(&pru->thread, NULL, pru_handle_intr, pru) != 0) {
+		pru_free(pru);
+		errno = EINVAL; /* XXX */
 		return NULL;
 	}
 
 	return pru;
-	
 }
 
 void
 pru_free(pru_t pru)
 {
+	pru->deinit(pru);
+#ifdef __BLOCKS__
+	if (pru->intr_block)
+		Block_release(pru->intr_block);
+#endif
 	free(pru);
 }
 
 #ifdef __BLOCKS__
 void
-pru_set_handler(pru_t pru, void (^handler)(void))
+pru_set_handler(pru_t pru, void (^block)(void))
 {
-	(void)pru;
-	handler();
+	pru->intr_block = Block_copy(block);
+
 }
 #endif
 
 void
-pru_set_handler_f(pru_t pru)
+pru_set_handler_f(pru_t pru, void (*f)(void))
 {
-	(void)pru;
+	pru->intr_func = f;
 }
 
 int
