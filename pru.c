@@ -181,10 +181,4 @@ pru_wait(pru_t pru, unsigned int pru_number)
 	return pru->wait(pru, pru_number);
 }
 
-int
-pru_get_property(pru_t pru)
-{
-	(void)pru;
-	return 0;
-}
 

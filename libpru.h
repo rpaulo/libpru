@@ -80,5 +80,3 @@ int	pru_upload(pru_t, unsigned int, const char *);
  * Wait for the PRU to halt.
  */
 int	pru_wait(pru_t, unsigned int);
-int	pru_get_property(pru_t);
-
