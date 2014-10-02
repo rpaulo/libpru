@@ -41,13 +41,13 @@
 static uint32_t
 ti_reg_read_4(char *mem, unsigned int reg)
 {
-	return *(uint32_t *)(void *)(mem + reg);
+	return *(volatile uint32_t *)(void *)(mem + reg);
 }
-	
+
 static void
 ti_reg_write_4(char *mem, unsigned int reg, uint32_t value)
 {
-	*(uint32_t *)(void *)(mem + reg) = value;
+	*(volatile uint32_t *)(void *)(mem + reg) = value;
 }
 
 static int
@@ -94,7 +94,7 @@ ti_reset(pru_t pru, unsigned int pru_number)
 	else
 		reg = AM33XX_PRUnCTL(pru_number);
 	ti_reg_write_4(pru->mem, reg, CTL_REG_RESET);
-	
+
 	return 0;
 }
 
@@ -198,6 +198,6 @@ ti_initialise(pru_t pru)
 	pru->upload_buffer = ti_upload;
 	pru->wait = ti_wait;
 	pru->check_intr = ti_check_intr;
-	
+
 	return 0;
 }
