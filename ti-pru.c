@@ -157,10 +157,13 @@ ti_initialise(pru_t pru)
 	char dev[64];
 	size_t mmap_sizes[2] = { AM33XX_MMAP_SIZE, AM18XX_MMAP_SIZE };
 	size_t mmap_size = 0;
+	int saved_errno = 0;
 
 	for (i = 0; i < 4; i++) {
 		snprintf(dev, sizeof(dev), "/dev/pruss%zu", i);
 		fd = open(dev, O_RDWR);
+		if (errno == EPERM)
+			break;
 		if (fd > 0)
 			break;
 	}
@@ -169,16 +172,18 @@ ti_initialise(pru_t pru)
 	pru->fd = fd;
 	/* N.B.: The order matters. */
 	for (i = 0; i < sizeof(mmap_sizes)/sizeof(mmap_sizes[0]); i++) {
-		pru->mem = mmap(0, mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED,
-		    fd, 0);
-		if (pru->mem) {
+		pru->mem = mmap(0, mmap_sizes[i], PROT_READ|PROT_WRITE,
+		    MAP_SHARED, fd, 0);
+		saved_errno = errno;
+		if (pru->mem != MAP_FAILED) {
 			mmap_size = mmap_sizes[i];
 			break;
 		}
 	}
-	if (pru->mem == NULL) {
+	if (pru->mem == MAP_FAILED) {
 		close(pru->fd);
-		return ENOMEM;
+		errno = saved_errno;
+		return -1;
 	}
 	/*
 	 * Use the md_stor field to save the revision.
