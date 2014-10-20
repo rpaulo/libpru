@@ -31,6 +31,7 @@ struct pru {
 	pthread_t thread;
 	/* Abstraction layer */
 	char *mem;
+	size_t mem_size;
 	unsigned int md_stor[4];
 	int (*disable)(pru_t, unsigned int);
 	int (*enable)(pru_t, unsigned int);
@@ -44,3 +45,12 @@ struct pru {
 	void (^intr_block)(void);
 #endif
 };
+
+extern int libpru_debug;
+
+#define	DPRINTF(fmt, ...)	do {		\
+	if (libpru_debug) {			\
+		printf("%s: ", __func__);	\
+		printf(fmt, __VA_ARGS__);	\
+	}					\
+} while (0)

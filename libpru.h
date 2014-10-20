@@ -32,8 +32,7 @@ typedef struct pru * pru_t;
 
 typedef enum {
 	PRU_TYPE_UNKNOWN,
-	PRU_TYPE_AM18XX,
-	PRU_TYPE_AM33XX,
+	PRU_TYPE_TI,
 } pru_type_t;
 
 pru_type_t pru_name_to_type(const char *);

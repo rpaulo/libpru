@@ -23,6 +23,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
 #include <fcntl.h>
@@ -39,13 +40,13 @@
 #include <pru-private.h>
 #include <ti-pru.h>
 
+int libpru_debug = 0;
+
 pru_type_t
 pru_name_to_type(const char *name)
 {
-	if (strcasecmp(name, "am18xx") == 0)
-		return PRU_TYPE_AM18XX;
-	else if (strcasecmp(name, "am33xx") == 0)
-		return PRU_TYPE_AM33XX;
+	if (strcasecmp(name, "ti") == 0)
+		return PRU_TYPE_TI;
 	else
 		return PRU_TYPE_UNKNOWN;
 }
@@ -73,20 +74,24 @@ pru_t
 pru_alloc(pru_type_t type)
 {
 	pru_t pru;
-	int savederrno;
+	int saved_errno;
+	char *pruenv;
 
+	pruenv = getenv("PRU_DEBUG");
+	if (pruenv)
+		libpru_debug = atoi(pruenv);
+	DPRINTF("type %d\n", type);
 	pru = malloc(sizeof(*pru));
 	if (pru == NULL)
 		return NULL;
 	bzero(pru, sizeof(*pru));
 	pru->type = type;
 	switch (pru->type) {
-	case PRU_TYPE_AM18XX:
-	case PRU_TYPE_AM33XX:
+	case PRU_TYPE_TI:
 		if (ti_initialise(pru) != 0) {
-			savederrno = errno;
+			saved_errno = errno;
 			free(pru);
-			errno = savederrno;
+			errno = saved_errno;
 			return NULL;
 		}
 		break;
@@ -103,6 +108,7 @@ pru_alloc(pru_type_t type)
 		errno = EINVAL; /* XXX */
 		return NULL;
 	}
+	DPRINTF("pru %p allocated and initialised\n", pru);
 
 	return pru;
 }
@@ -110,6 +116,7 @@ pru_alloc(pru_type_t type)
 void
 pru_free(pru_t pru)
 {
+	DPRINTF("pru %p\n", pru);
 	pru->deinit(pru);
 #ifdef __BLOCKS__
 	if (pru->intr_block)
@@ -130,6 +137,7 @@ pru_set_handler(pru_t pru, void (^block)(void))
 void
 pru_set_handler_f(pru_t pru, void (*f)(void))
 {
+	DPRINTF("function %p\n", f);
 	pru->intr_func = f;
 }
 
@@ -154,24 +162,30 @@ pru_enable(pru_t pru, unsigned int pru_number)
 int
 pru_upload(pru_t pru, unsigned int pru_number, const char *file)
 {
-	int error;
+	int error, saved_errno;
 	int fd;
 	struct stat sb;
 	char *buffer;
 
+	DPRINTF("pru %d file %s\n", pru_number, file);
 	fd = open(file, O_RDONLY);
 	if (fd < 0)
 		return errno;
-	fstat(fd, &sb);
-	buffer = mmap(0, (size_t)sb.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-	if (buffer == NULL) {
+	if (fstat(fd, &sb) != 0) {
+		saved_errno = errno;
 		close(fd);
-		return errno;
+		return saved_errno;
+	}
+	buffer = mmap(0, (size_t)sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (buffer == MAP_FAILED) {
+		saved_errno = errno;
+		close(fd);
+		return saved_errno;
 	}
 	error = pru->upload_buffer(pru, pru_number, buffer, (size_t)sb.st_size);
 	munmap(buffer, (size_t)sb.st_size);
 	close(fd);
-	
+
 	return error;
 }
 
@@ -180,5 +194,3 @@ pru_wait(pru_t pru, unsigned int pru_number)
 {
 	return pru->wait(pru, pru_number);
 }
-
-

@@ -41,12 +41,14 @@
 static uint32_t
 ti_reg_read_4(char *mem, unsigned int reg)
 {
+	DPRINTF("reg 0x%x\n", reg);
 	return *(volatile uint32_t *)(void *)(mem + reg);
 }
 
 static void
 ti_reg_write_4(char *mem, unsigned int reg, uint32_t value)
 {
+	DPRINTF("reg 0x%x, val 0x%x\n", reg, value);
 	*(volatile uint32_t *)(void *)(mem + reg) = value;
 }
 
@@ -57,11 +59,13 @@ ti_disable(pru_t pru, unsigned int pru_number)
 
 	if (pru_number > 1)
 		return -1;
+	DPRINTF("pru %d\n", pru_number);
 	if (pru->md_stor[0] == AM18XX_REV)
 		reg = AM18XX_PRUnCTL(pru_number);
 	else
 		reg = AM33XX_PRUnCTL(pru_number);
-	ti_reg_write_4(pru->mem, reg, CTL_REG_DISABLE);
+	ti_reg_write_4(pru->mem, reg,
+	    ti_reg_read_4(pru->mem, reg) & ~CTL_REG_ENABLE);
 
 	return 0;
 }
@@ -71,13 +75,15 @@ ti_enable(pru_t pru, unsigned int pru_number)
 {
 	unsigned int reg;
 
-	if (pru_number > 2)
+	if (pru_number > 1)
 		return -1;
+	DPRINTF("pru %d\n", pru_number);
 	if (pru->md_stor[0] == AM18XX_REV)
 		reg = AM18XX_PRUnCTL(pru_number);
 	else
 		reg = AM33XX_PRUnCTL(pru_number);
-	ti_reg_write_4(pru->mem, reg, CTL_REG_ENABLE);
+	ti_reg_write_4(pru->mem, reg,
+	    ti_reg_read_4(pru->mem, reg) | CTL_REG_ENABLE);
 
 	return 0;
 }
@@ -89,11 +95,13 @@ ti_reset(pru_t pru, unsigned int pru_number)
 
 	if (pru_number > 1)
 		return -1;
+	DPRINTF("pru %d\n", pru_number);
 	if (pru->md_stor[0] == AM18XX_REV)
 		reg = AM18XX_PRUnCTL(pru_number);
 	else
 		reg = AM33XX_PRUnCTL(pru_number);
-	ti_reg_write_4(pru->mem, reg, CTL_REG_RESET);
+	ti_reg_write_4(pru->mem, reg,
+	    ti_reg_read_4(pru->mem, reg) & ~CTL_REG_RESET);
 
 	return 0;
 }
@@ -101,21 +109,26 @@ ti_reset(pru_t pru, unsigned int pru_number)
 static int
 ti_upload(pru_t pru, unsigned int pru_number, const char *buffer, size_t size)
 {
-	unsigned int *iram;
+	unsigned char *iram;
 
 	if (pru_number > 1)
 		return -1;
+	DPRINTF("pru %d\n", pru_number);
+	iram = (unsigned char *)pru->mem;
 	if (pru->md_stor[0] == AM18XX_REV) {
 		if (size > AM18XX_IRAM_SIZE)
 			return -1;
-		iram = (unsigned int *)AM18XX_PRUnIRAM(pru_number);
+		iram += AM18XX_PRUnIRAM(pru_number);
+		DPRINTF("IRAM at %p\n", iram);
 		memset(iram, 0, AM18XX_IRAM_SIZE);
 	} else {
 		if (size > AM33XX_IRAM_SIZE)
 			return -1;
-		iram = (unsigned int *)AM33XX_PRUnIRAM(pru_number);
+		iram += AM33XX_PRUnIRAM(pru_number);
+		DPRINTF("IRAM at %p\n", iram);
 		memset(iram, 0, AM33XX_IRAM_SIZE);
 	}
+	DPRINTF("copying buf %p size %u\n", buffer, size);
 	memcpy(iram, buffer, size);
 
 	return 0;
@@ -126,7 +139,9 @@ ti_wait(pru_t pru, unsigned int pru_number)
 {
 	unsigned int reg;
 	struct timespec ts;
+	int i;
 
+	DPRINTF("pru %d\n", pru_number);
 	/* 0.5 seconds */
 	ts.tv_nsec = 500000000;
 	ts.tv_sec = 0;
@@ -136,7 +151,17 @@ ti_wait(pru_t pru, unsigned int pru_number)
 		reg = AM18XX_PRUnCTL(pru_number);
 	else
 		reg = AM33XX_PRUnCTL(pru_number);
-	while (ti_reg_read_4(pru->mem, reg) != 0x8000)
+	/*
+	 * Wait for the PRU to start running.
+	 */
+	i = 0;
+	while (i < 5 && !(ti_reg_read_4(pru->mem, reg) & CTL_REG_RUNSTATE)) {
+		nanosleep(&ts, NULL);
+		i++;
+	}
+	if (i == 5)
+		return -1;
+	while (ti_reg_read_4(pru->mem, reg) & CTL_REG_RUNSTATE)
 		nanosleep(&ts, NULL);
 
 	return 0;
@@ -149,6 +174,16 @@ ti_check_intr(pru_t pru)
 	return 0;
 }
 
+static int
+ti_deinit(pru_t pru)
+{
+	if (pru->mem != MAP_FAILED)
+		munmap(pru->mem, pru->mem_size);
+	close(pru->fd);
+
+	return 0;
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -156,7 +191,6 @@ ti_initialise(pru_t pru)
 	int fd = 0;
 	char dev[64];
 	size_t mmap_sizes[2] = { AM33XX_MMAP_SIZE, AM18XX_MMAP_SIZE };
-	size_t mmap_size = 0;
 	int saved_errno = 0;
 
 	for (i = 0; i < 4; i++) {
@@ -176,11 +210,12 @@ ti_initialise(pru_t pru)
 		    MAP_SHARED, fd, 0);
 		saved_errno = errno;
 		if (pru->mem != MAP_FAILED) {
-			mmap_size = mmap_sizes[i];
+			pru->mem_size = mmap_sizes[i];
 			break;
 		}
 	}
 	if (pru->mem == MAP_FAILED) {
+		DPRINTF("mmap failed %d\n", saved_errno);
 		close(pru->fd);
 		errno = saved_errno;
 		return -1;
@@ -188,12 +223,14 @@ ti_initialise(pru_t pru)
 	/*
 	 * Use the md_stor field to save the revision.
 	 */
-	if (ti_reg_read_4(pru->mem, AM18XX_INTC_REG) == AM18XX_REV)
+	if (ti_reg_read_4(pru->mem, AM18XX_INTC_REG) == AM18XX_REV) {
+		DPRINTF("found AM18XX PRU @ %p\n", pru->mem);
 		pru->md_stor[0] = AM18XX_REV;
-	else if (ti_reg_read_4(pru->mem, AM33XX_INTC_REG) == AM33XX_REV)
+	} else if (ti_reg_read_4(pru->mem, AM33XX_INTC_REG) == AM33XX_REV) {
+		DPRINTF("found AM33XX PRU @ %p\n", pru->mem);
 		pru->md_stor[0] = AM33XX_REV;
-	else {
-		munmap(pru->mem, mmap_size);
+	} else {
+		munmap(pru->mem, pru->mem_size);
 		close(pru->fd);
 		return EINVAL;
 	}
@@ -203,6 +240,7 @@ ti_initialise(pru_t pru)
 	pru->upload_buffer = ti_upload;
 	pru->wait = ti_wait;
 	pru->check_intr = ti_check_intr;
+	pru->deinit = ti_deinit;
 
 	return 0;
 }

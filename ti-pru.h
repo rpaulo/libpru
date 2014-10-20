@@ -49,8 +49,8 @@
 #define	AM33XX_MMAP_SIZE	0x00040000
 
 /* Control register */
-#define	CTL_REG_RESET		0x00000000
-#define	CTL_REG_DISABLE		0x00000001
-#define	CTL_REG_ENABLE		0x00000002
+#define	CTL_REG_RESET	        (1U << 0)	/* Clear to reset */
+#define	CTL_REG_ENABLE		(1U << 1)
+#define	CTL_REG_RUNSTATE	(1U << 15)
 
 extern int ti_initialise(pru_t) __hidden;
