@@ -79,3 +79,9 @@ int	pru_upload(pru_t, unsigned int, const char *);
  * Wait for the PRU to halt.
  */
 int	pru_wait(pru_t, unsigned int);
+
+
+/*
+ * Texas Instruments specific functions.
+ */
+int	ti_disassemble(uint32_t, char *, size_t);

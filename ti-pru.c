@@ -244,3 +244,105 @@ ti_initialise(pru_t pru)
 
 	return 0;
 }
+
+static void
+ti_reg_str(uint8_t reg, char *buf, size_t len)
+{
+	if (reg < 0xe0)
+		snprintf(buf, len, "??");
+	else
+		snprintf(buf, len, "r%d", reg - 0xe0);
+}
+
+int
+ti_disassemble(uint32_t opcode, char *buf, size_t len)
+{
+	uint8_t op;
+	size_t remlen;
+
+	remlen = len;
+	op = (opcode & 0xff000000) >> 24;
+	switch (op) {
+	case TI_OP_ADD:
+		snprintf(buf, remlen, "add");
+		break;
+	case TI_OP_ADC:
+		break;
+	case TI_OP_SUB:
+		break;
+	case TI_OP_SUC:
+		break;
+	case TI_OP_LSL:
+		break;
+	case TI_OP_LSR:
+		break;
+	case TI_OP_RSB:
+		break;
+	case TI_OP_RSC:
+		break;
+	case TI_OP_AND:
+		break;
+	case TI_OP_OR:
+		break;
+	case TI_OP_XOR:
+		break;
+	case TI_OP_NOT:
+		break;
+	case TI_OP_MIN:
+		break;
+	case TI_OP_MAX:
+		break;
+	case TI_OP_CLR:
+		break;
+	case TI_OP_SET:
+		break;
+	case TI_OP_JMP:
+		break;
+	case TI_OP_JAL:
+		break;
+	case TI_OP_LDI:
+		break;
+	case TI_OP_LMBD:
+		break;
+	case TI_OP_HALT:
+		break;
+	case TI_OP_MVI:
+		break;
+	case TI_OP_XIN:
+		break;
+	case TI_OP_XOUT:
+		break;
+	case TI_OP_SLP:
+		break;
+	case TI_OP_QBLT:
+		break;
+	case TI_OP_QBEQ:
+		break;
+	case TI_OP_QBLE:
+		break;
+	case TI_OP_QBGT:
+		break;
+	case TI_OP_QBNE:
+		break;
+	case TI_OP_QBGE:
+		break;
+	case TI_OP_QBA:
+		break;
+	case TI_OP_SBCO:
+		break;
+	case TI_OP_LBCO:
+		break;
+	case TI_OP_QBBC:
+		break;
+	case TI_OP_QBBS:
+		break;
+	case TI_OP_SBBO:
+		break;
+	case TI_OP_LBBO:
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
