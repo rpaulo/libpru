@@ -47,7 +47,7 @@ extern int ti_initialise(pru_t) __hidden;
 #define	AM33XX_PRUnCTL(n)	AM33XX_PRU0CTL_REG + n * 0x2000
 #define	AM33XX_PRU0IRAM_REG	0x00034000
 #define	AM33XX_PRU1IRAM_REG	0x00038000
-#define	AM33XX_PRUnIRAM(n)	AM33XX_PRU0IRAM_REG + n * AM33XX_IRAM_SIZE
+#define	AM33XX_PRUnIRAM(n)	AM33XX_PRU0IRAM_REG + n * 0x4000
 #define	AM33XX_MMAP_SIZE	0x00040000
 
 /* Control register */
