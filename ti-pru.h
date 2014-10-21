@@ -25,6 +25,8 @@
  */
 #pragma once
 
+extern int ti_initialise(pru_t) __hidden;
+
 #define	AM18XX_REV		0x4E825900
 #define	AM33XX_REV		0x4E82A900
 
@@ -53,4 +55,45 @@
 #define	CTL_REG_ENABLE		(1U << 1)
 #define	CTL_REG_RUNSTATE	(1U << 15)
 
-extern int ti_initialise(pru_t) __hidden;
+
+/*
+ * Definitions for the disassembler.
+ */
+#define	TI_OP_ADD	0x00
+#define	TI_OP_ADC	0x02
+#define	TI_OP_SUB	0x04
+#define	TI_OP_SUC	0x06
+#define	TI_OP_LSL	0x09
+#define	TI_OP_LSR	0x0b
+#define	TI_OP_RSB	0x0c
+#define	TI_OP_RSC	0x0e
+#define	TI_OP_AND	0x10
+#define	TI_OP_OR	0x12
+#define	TI_OP_XOR	0x14
+#define	TI_OP_NOT	0x17
+#define	TI_OP_MIN	0x18
+#define	TI_OP_MAX	0x1a
+#define	TI_OP_CLR	0x1c
+#define	TI_OP_SET	0x1e
+#define	TI_OP_JMP	0x20
+#define	TI_OP_JAL	0x22
+#define	TI_OP_LDI	0x24
+#define	TI_OP_LMBD	0x26
+#define	TI_OP_HALT	0x2a
+#define	TI_OP_MVI	0x2c
+#define	TI_OP_XIN	0x2e
+#define	TI_OP_XOUT	0x2f
+#define	TI_OP_SLP	0x3e
+#define	TI_OP_QBLT	0x49
+#define	TI_OP_QBEQ	0x51
+#define	TI_OP_QBLE	0x59
+#define	TI_OP_QBGT	0x61
+#define	TI_OP_QBNE	0x69
+#define	TI_OP_QBGE	0x71
+#define	TI_OP_QBA	0x79
+#define	TI_OP_SBCO	0x81
+#define	TI_OP_LBCO	0x91
+#define	TI_OP_QBBC	0xc8
+#define	TI_OP_QBBS	0xd0
+#define	TI_OP_SBBO	0xe1
+#define	TI_OP_LBBO	0xf1
