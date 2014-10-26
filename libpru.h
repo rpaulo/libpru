@@ -25,6 +25,8 @@
  */
 #pragma once
 
+#include <sys/types.h>
+
 struct pru;
 typedef struct pru * pru_t;
 
