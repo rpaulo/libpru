@@ -60,16 +60,26 @@ extern int ti_initialise(pru_t) __hidden;
  * Definitions for the disassembler.
  */
 #define	TI_OP_ADD	0x00
+#define	TI_OP_ADDI	0x01
 #define	TI_OP_ADC	0x02
+#define	TI_OP_ADCI	0x03
 #define	TI_OP_SUB	0x04
+#define	TI_OP_SUBI	0x05
 #define	TI_OP_SUC	0x06
-#define	TI_OP_LSL	0x09
-#define	TI_OP_LSR	0x0b
+#define	TI_OP_SUCI	0x07
+#define	TI_OP_LSL	0x08
+#define	TI_OP_LSLI	0x09
+#define	TI_OP_LSR	0x0a
+#define	TI_OP_LSRI	0x0b
 #define	TI_OP_RSB	0x0c
+#define	TI_OP_RSBI	0x0d
 #define	TI_OP_RSC	0x0e
+#define	TI_OP_RSCI	0x0f
 #define	TI_OP_AND	0x10
 #define	TI_OP_OR	0x12
+#define	TI_OP_ORI	0x13
 #define	TI_OP_XOR	0x14
+#define	TI_OP_XORI	0x15
 #define	TI_OP_NOT	0x17
 #define	TI_OP_MIN	0x18
 #define	TI_OP_MAX	0x1a
