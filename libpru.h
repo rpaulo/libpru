@@ -81,7 +81,10 @@ int	pru_upload(pru_t, unsigned int, const char *);
  * Wait for the PRU to halt.
  */
 int	pru_wait(pru_t, unsigned int);
-
+/*
+ * Read the instruction memory.
+ */
+uint32_t pru_read_mem(pru_t, unsigned int, uint32_t);
 
 /*
  * Texas Instruments specific functions.

@@ -186,6 +186,13 @@ ti_deinit(pru_t pru)
 	return 0;
 }
 
+static uint32_t
+ti_read_mem(pru_t pru, unsigned int pru_number, uint32_t mem)
+{
+	/* XXX missing bounds check. */
+	return (ti_reg_read_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem));
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -243,6 +250,7 @@ ti_initialise(pru_t pru)
 	pru->wait = ti_wait;
 	pru->check_intr = ti_check_intr;
 	pru->deinit = ti_deinit;
+	pru->read_mem = ti_read_mem;
 
 	return 0;
 }
