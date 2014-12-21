@@ -44,9 +44,9 @@ struct pru {
 	void (*write_imem)(pru_t, unsigned int, uint32_t, uint32_t);
 	uint32_t (*read_reg)(pru_t, unsigned int, unsigned int);
 	int (*disassemble)(pru_t, uint32_t, char *, size_t);
-	void (*intr_func)(void);
+	void (*intr_func)(int);
 #ifdef __BLOCKS__
-	void (^intr_block)(void);
+	void (^intr_block)(int);
 #endif
 };
 

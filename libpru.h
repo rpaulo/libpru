@@ -49,9 +49,9 @@ pru_t	pru_alloc(pru_type_t);
  */
 void	pru_free(pru_t);
 #ifdef __BLOCKS__
-void	pru_set_handler(pru_t, void (^)(void));
+void	pru_set_handler(pru_t, void (^)(int));
 #endif
-void	pru_set_handler_f(pru_t, void (*)(void));
+void	pru_set_handler_f(pru_t, void (*)(int));
 /*
  * Resets the PRU.
  *

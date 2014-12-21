@@ -55,16 +55,17 @@ static void *
 pru_handle_intr(void *arg)
 {
 	pru_t pru;
+	int ret;
 
 	pru = arg;
-	while (pru->check_intr(pru) > 0) {
+	while ((ret = pru->check_intr(pru)) > 0) {
 #ifdef __BLOCKS__
 		if (pru->intr_block)
-			pru->intr_block();
+			pru->intr_block(ret);
 		else
 #endif
 		if (pru->intr_func)
-			pru->intr_func();
+			pru->intr_func(ret);
 	}
 
 	return (NULL);
@@ -127,7 +128,7 @@ pru_free(pru_t pru)
 
 #ifdef __BLOCKS__
 void
-pru_set_handler(pru_t pru, void (^block)(void))
+pru_set_handler(pru_t pru, void (^block)(int))
 {
 	pru->intr_block = Block_copy(block);
 
@@ -135,7 +136,7 @@ pru_set_handler(pru_t pru, void (^block)(void))
 #endif
 
 void
-pru_set_handler_f(pru_t pru, void (*f)(void))
+pru_set_handler_f(pru_t pru, void (*f)(int))
 {
 	DPRINTF("function %p\n", f);
 	pru->intr_func = f;
