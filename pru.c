@@ -196,7 +196,13 @@ pru_wait(pru_t pru, unsigned int pru_number)
 }
 
 uint32_t
-pru_read_mem(pru_t pru, unsigned int pru_number, uint32_t mem)
+pru_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 {
-	return pru->read_mem(pru, pru_number, mem);
+	return pru->read_imem(pru, pru_number, mem);
+}
+
+int
+pru_disassemble(pru_t pru, uint32_t opcode, char *buf, size_t len)
+{
+	return pru->disassemble(pru, opcode, buf, len);
 }

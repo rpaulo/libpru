@@ -84,9 +84,9 @@ int	pru_wait(pru_t, unsigned int);
 /*
  * Read the instruction memory.
  */
-uint32_t pru_read_mem(pru_t, unsigned int, uint32_t);
+uint32_t pru_read_imem(pru_t, unsigned int, uint32_t);
 
 /*
- * Texas Instruments specific functions.
+ * Disassemble the opcode passed in as argument.
  */
-int	ti_disassemble(uint32_t, char *, size_t);
+int	pru_disassemble(pru_t, uint32_t, char *, size_t);

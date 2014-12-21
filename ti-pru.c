@@ -187,73 +187,12 @@ ti_deinit(pru_t pru)
 }
 
 static uint32_t
-ti_read_mem(pru_t pru, unsigned int pru_number, uint32_t mem)
+ti_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 {
 	/* XXX missing bounds check. */
 	return (ti_reg_read_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem));
 }
 
-int
-ti_initialise(pru_t pru)
-{
-	size_t i;
-	int fd = 0;
-	char dev[64];
-	size_t mmap_sizes[2] = { AM33XX_MMAP_SIZE, AM18XX_MMAP_SIZE };
-	int saved_errno = 0;
-
-	for (i = 0; i < 4; i++) {
-		snprintf(dev, sizeof(dev), "/dev/pruss%zu", i);
-		fd = open(dev, O_RDWR);
-		if (errno == EPERM)
-			break;
-		if (fd > 0)
-			break;
-	}
-	if (fd < 0)
-		return EINVAL;
-	pru->fd = fd;
-	/* N.B.: The order matters. */
-	for (i = 0; i < sizeof(mmap_sizes)/sizeof(mmap_sizes[0]); i++) {
-		pru->mem = mmap(0, mmap_sizes[i], PROT_READ|PROT_WRITE,
-		    MAP_SHARED, fd, 0);
-		saved_errno = errno;
-		if (pru->mem != MAP_FAILED) {
-			pru->mem_size = mmap_sizes[i];
-			break;
-		}
-	}
-	if (pru->mem == MAP_FAILED) {
-		DPRINTF("mmap failed %d\n", saved_errno);
-		close(pru->fd);
-		errno = saved_errno;
-		return -1;
-	}
-	/*
-	 * Use the md_stor field to save the revision.
-	 */
-	if (ti_reg_read_4(pru->mem, AM18XX_INTC_REG) == AM18XX_REV) {
-		DPRINTF("found AM18XX PRU @ %p\n", pru->mem);
-		pru->md_stor[0] = AM18XX_REV;
-	} else if (ti_reg_read_4(pru->mem, AM33XX_INTC_REG) == AM33XX_REV) {
-		DPRINTF("found AM33XX PRU @ %p\n", pru->mem);
-		pru->md_stor[0] = AM33XX_REV;
-	} else {
-		munmap(pru->mem, pru->mem_size);
-		close(pru->fd);
-		return EINVAL;
-	}
-	pru->disable = ti_disable;
-	pru->enable = ti_enable;
-	pru->reset = ti_reset;
-	pru->upload_buffer = ti_upload;
-	pru->wait = ti_wait;
-	pru->check_intr = ti_check_intr;
-	pru->deinit = ti_deinit;
-	pru->read_mem = ti_read_mem;
-
-	return 0;
-}
 
 static void
 ti_reg_str(uint8_t reg, char *buf, size_t len)
@@ -289,8 +228,8 @@ ti_std_ins(const char *ins, const char *op1, const char *op2, const char *op3,
 		    op3);
 }
 
-int
-ti_disassemble(uint32_t opcode, char *buf, size_t len)
+static int
+ti_disassemble(pru_t pru __unused, uint32_t opcode, char *buf, size_t len)
 {
 	uint8_t ins, op1, op2, op3;
 	uint16_t imm;
@@ -540,6 +479,69 @@ ti_disassemble(uint32_t opcode, char *buf, size_t len)
 	}
 	/* N.B. the order of the arguments is reversed. */
 	ti_std_ins(c_ins, c_op3, c_op2, c_op1, buf, len);
+
+	return 0;
+}
+
+int
+ti_initialise(pru_t pru)
+{
+	size_t i;
+	int fd = 0;
+	char dev[64];
+	size_t mmap_sizes[2] = { AM33XX_MMAP_SIZE, AM18XX_MMAP_SIZE };
+	int saved_errno = 0;
+
+	for (i = 0; i < 4; i++) {
+		snprintf(dev, sizeof(dev), "/dev/pruss%zu", i);
+		fd = open(dev, O_RDWR);
+		if (errno == EPERM)
+			break;
+		if (fd > 0)
+			break;
+	}
+	if (fd < 0)
+		return EINVAL;
+	pru->fd = fd;
+	/* N.B.: The order matters. */
+	for (i = 0; i < sizeof(mmap_sizes)/sizeof(mmap_sizes[0]); i++) {
+		pru->mem = mmap(0, mmap_sizes[i], PROT_READ|PROT_WRITE,
+		    MAP_SHARED, fd, 0);
+		saved_errno = errno;
+		if (pru->mem != MAP_FAILED) {
+			pru->mem_size = mmap_sizes[i];
+			break;
+		}
+	}
+	if (pru->mem == MAP_FAILED) {
+		DPRINTF("mmap failed %d\n", saved_errno);
+		close(pru->fd);
+		errno = saved_errno;
+		return -1;
+	}
+	/*
+	 * Use the md_stor field to save the revision.
+	 */
+	if (ti_reg_read_4(pru->mem, AM18XX_INTC_REG) == AM18XX_REV) {
+		DPRINTF("found AM18XX PRU @ %p\n", pru->mem);
+		pru->md_stor[0] = AM18XX_REV;
+	} else if (ti_reg_read_4(pru->mem, AM33XX_INTC_REG) == AM33XX_REV) {
+		DPRINTF("found AM33XX PRU @ %p\n", pru->mem);
+		pru->md_stor[0] = AM33XX_REV;
+	} else {
+		munmap(pru->mem, pru->mem_size);
+		close(pru->fd);
+		return EINVAL;
+	}
+	pru->disable = ti_disable;
+	pru->enable = ti_enable;
+	pru->reset = ti_reset;
+	pru->upload_buffer = ti_upload;
+	pru->wait = ti_wait;
+	pru->check_intr = ti_check_intr;
+	pru->deinit = ti_deinit;
+	pru->read_imem = ti_read_imem;
+	pru->disassemble = ti_disassemble;
 
 	return 0;
 }
