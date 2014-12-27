@@ -90,3 +90,13 @@ uint32_t pru_read_imem(pru_t, unsigned int, uint32_t);
  * Disassemble the opcode passed in as argument.
  */
 int	pru_disassemble(pru_t, uint32_t, char *, size_t);
+
+/*
+ * Read a PRU register.
+ */
+uint32_t pru_read_reg(pru_t, unsigned int, uint32_t);
+
+/*
+ * Modify a PRU register.
+ */
+int pru_write_reg(pru_t, unsigned int, uint32_t, uint32_t);

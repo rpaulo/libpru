@@ -183,7 +183,8 @@ pru_upload(pru_t pru, unsigned int pru_number, const char *file)
 		close(fd);
 		return saved_errno;
 	}
-	error = pru->upload_buffer(pru, pru_number, buffer, (size_t)sb.st_size);
+	error = pru->upload_buffer(pru, pru_number, buffer,
+	    (size_t)sb.st_size);
 	munmap(buffer, (size_t)sb.st_size);
 	close(fd);
 
@@ -200,6 +201,18 @@ uint32_t
 pru_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 {
 	return pru->read_imem(pru, pru_number, mem);
+}
+
+uint32_t
+pru_read_reg(pru_t pru, unsigned int pru_number, uint32_t reg)
+{
+	return pru->read_reg(pru, pru_number, reg);
+}
+
+int
+pru_write_reg(pru_t pru, unsigned int pru_number, uint32_t reg, uint32_t val)
+{
+	return pru->write_reg(pru, pru_number, reg, val);
 }
 
 int

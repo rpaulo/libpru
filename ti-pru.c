@@ -181,7 +181,6 @@ ti_deinit(pru_t pru)
 {
 	if (pru->mem != MAP_FAILED)
 		munmap(pru->mem, pru->mem_size);
-	close(pru->fd);
 
 	return 0;
 }
@@ -483,6 +482,30 @@ ti_disassemble(pru_t pru __unused, uint32_t opcode, char *buf, size_t len)
 	return 0;
 }
 
+static uint32_t
+ti_read_reg(pru_t pru, unsigned int pru_number, uint32_t reg)
+{
+	if (pru->md_stor[0] == AM18XX_REV)
+		return 0;
+	if (pru_number > 1 || reg > 31)
+		return 0;
+
+	return ti_reg_read_4(pru->mem,
+		AM33XX_PRUnDBG(pru_number) + reg * 4);
+}
+
+static int
+ti_write_reg(pru_t pru, unsigned int pru_number, uint32_t reg, uint32_t val)
+{
+	if (pru->md_stor[0] == AM18XX_REV)
+		return -1;
+	if (pru_number > 1 || reg > 31)
+		return -1;
+	ti_reg_write_4(pru->mem, AM33XX_PRUnDBG(pru_number) + reg * 4, val);
+
+	return 0;
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -502,7 +525,6 @@ ti_initialise(pru_t pru)
 	}
 	if (fd < 0)
 		return EINVAL;
-	pru->fd = fd;
 	/* N.B.: The order matters. */
 	for (i = 0; i < sizeof(mmap_sizes)/sizeof(mmap_sizes[0]); i++) {
 		pru->mem = mmap(0, mmap_sizes[i], PROT_READ|PROT_WRITE,
@@ -513,9 +535,9 @@ ti_initialise(pru_t pru)
 			break;
 		}
 	}
+	close(fd);
 	if (pru->mem == MAP_FAILED) {
 		DPRINTF("mmap failed %d\n", saved_errno);
-		close(pru->fd);
 		errno = saved_errno;
 		return -1;
 	}
@@ -530,7 +552,6 @@ ti_initialise(pru_t pru)
 		pru->md_stor[0] = AM33XX_REV;
 	} else {
 		munmap(pru->mem, pru->mem_size);
-		close(pru->fd);
 		return EINVAL;
 	}
 	pru->disable = ti_disable;
@@ -542,6 +563,8 @@ ti_initialise(pru_t pru)
 	pru->deinit = ti_deinit;
 	pru->read_imem = ti_read_imem;
 	pru->disassemble = ti_disassemble;
+	pru->read_reg = ti_read_reg;
+	pru->write_reg = ti_write_reg;
 
 	return 0;
 }

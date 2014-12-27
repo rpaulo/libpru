@@ -42,7 +42,8 @@ struct pru {
 	int (*deinit)(pru_t);
 	uint32_t (*read_imem)(pru_t, unsigned int, uint32_t);
 	void (*write_imem)(pru_t, unsigned int, uint32_t, uint32_t);
-	uint32_t (*read_reg)(pru_t, unsigned int, unsigned int);
+	uint32_t (*read_reg)(pru_t, unsigned int, uint32_t);
+	int (*write_reg)(pru_t, unsigned int, uint32_t, uint32_t);
 	int (*disassemble)(pru_t, uint32_t, char *, size_t);
 	void (*intr_func)(int);
 #ifdef __BLOCKS__
