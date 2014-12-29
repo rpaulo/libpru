@@ -56,6 +56,7 @@ extern int ti_initialise(pru_t) __hidden;
 /* Control register */
 #define	CTL_REG_RESET	        (1U << 0)	/* Clear to reset */
 #define	CTL_REG_ENABLE		(1U << 1)
+#define	CTL_REG_COUNTER		(1U << 2)	/* Cycle counter */
 #define	CTL_REG_RUNSTATE	(1U << 15)
 
 

@@ -104,6 +104,8 @@ ti_reset(pru_t pru, unsigned int pru_number)
 		reg = AM33XX_PRUnCTL(pru_number);
 	ti_reg_write_4(pru->mem, reg,
 	    ti_reg_read_4(pru->mem, reg) & ~CTL_REG_RESET);
+	ti_reg_write_4(pru->mem, reg,
+	    ti_reg_read_4(pru->mem, reg) | CTL_REG_COUNTER);
 
 	return 0;
 }
@@ -506,6 +508,39 @@ ti_write_reg(pru_t pru, unsigned int pru_number, uint32_t reg, uint32_t val)
 	return 0;
 }
 
+static uint16_t
+ti_get_pc(pru_t pru, unsigned int pru_number)
+{
+	uint32_t reg;
+
+	if (pru->md_stor[0] == AM18XX_REV)
+		reg = AM18XX_PRUnCTL(pru_number);
+	else
+		reg = AM33XX_PRUnCTL(pru_number);
+
+	return (ti_reg_read_4(pru->mem, reg + 0x4) & 0xffff) * 4;
+}
+
+static int
+ti_set_pc(pru_t pru, unsigned int pru_number, uint16_t pc)
+{
+	uint32_t reg, val;
+
+	if (pru_number > 1)
+		return -1;
+	if (pru->md_stor[0] == AM18XX_REV)
+		reg = AM18XX_PRUnCTL(pru_number);
+	else
+		reg = AM33XX_PRUnCTL(pru_number);
+
+	val = ti_reg_read_4(pru->mem, reg);
+	val &= 0x0000ffff;;
+	val |= (uint32_t)pc << 16;
+	ti_reg_write_4(pru->mem, reg, val);
+
+	return 0;
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -554,6 +589,8 @@ ti_initialise(pru_t pru)
 		munmap(pru->mem, pru->mem_size);
 		return EINVAL;
 	}
+	ti_reset(pru, 0);
+	ti_reset(pru, 1);
 	pru->disable = ti_disable;
 	pru->enable = ti_enable;
 	pru->reset = ti_reset;
@@ -565,6 +602,8 @@ ti_initialise(pru_t pru)
 	pru->disassemble = ti_disassemble;
 	pru->read_reg = ti_read_reg;
 	pru->write_reg = ti_write_reg;
+	pru->get_pc = ti_get_pc;
+	pru->set_pc = ti_set_pc;
 
 	return 0;
 }
