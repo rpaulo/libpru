@@ -204,15 +204,22 @@ pru_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 }
 
 uint32_t
-pru_read_reg(pru_t pru, unsigned int pru_number, uint32_t reg)
+pru_read_reg(pru_t pru, unsigned int pru_number, enum pru_reg reg)
 {
-	return pru->read_reg(pru, pru_number, reg);
+	if (reg == REG_PC)
+		return pru->get_pc(pru, pru_number);
+	else
+		return pru->read_reg(pru, pru_number, reg);
 }
 
 int
-pru_write_reg(pru_t pru, unsigned int pru_number, uint32_t reg, uint32_t val)
+pru_write_reg(pru_t pru, unsigned int pru_number, enum pru_reg reg,
+    uint32_t val)
 {
-	return pru->write_reg(pru, pru_number, reg, val);
+	if (reg == REG_PC)
+		return pru->set_pc(pru, pru_number, (uint16_t)reg);
+	else
+		return pru->write_reg(pru, pru_number, reg, val);
 }
 
 int
