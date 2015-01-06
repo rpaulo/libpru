@@ -106,6 +106,9 @@ ti_reset(pru_t pru, unsigned int pru_number)
 	    ti_reg_read_4(pru->mem, reg) & ~CTL_REG_RESET);
 	ti_reg_write_4(pru->mem, reg,
 	    ti_reg_read_4(pru->mem, reg) | CTL_REG_COUNTER);
+	/* Set the PC. */
+	ti_reg_write_4(pru->mem, reg,
+	    ti_reg_read_4(pru->mem, reg) & (0x0000ffff));
 
 	return 0;
 }
@@ -199,11 +202,8 @@ static void
 ti_reg_str(uint8_t reg, char *buf, size_t len)
 {
 	if (reg < 0xe0) {
-		if (reg < 32)
-			snprintf(buf, len, "r%d.b0", reg);
-		else
-			snprintf(buf, len, "r%d.w%d", reg & 0xf,
-			    reg >> 4);
+		snprintf(buf, len, "r%d.%c%d", reg & 0x1f,
+		    reg & 0x80 ? 'w' : 'b', (reg >> 5) & 0x3);
 	} else
 		snprintf(buf, len, "r%d", reg - 0xe0);
 }
