@@ -553,7 +553,7 @@ ti_initialise(pru_t pru)
 	for (i = 0; i < 4; i++) {
 		snprintf(dev, sizeof(dev), "/dev/pruss%zu", i);
 		fd = open(dev, O_RDWR);
-		if (errno == EPERM)
+		if (fd == -1 && errno == EACCES)
 			break;
 		if (fd > 0)
 			break;
