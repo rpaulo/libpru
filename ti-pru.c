@@ -492,6 +492,7 @@ ti_read_reg(pru_t pru, unsigned int pru_number, uint32_t reg)
 	if (pru_number > 1 || reg > 31)
 		return 0;
 
+	DPRINTF("read reg %u\n", reg);
 	return ti_reg_read_4(pru->mem,
 		AM33XX_PRUnDBG(pru_number) + reg * 4);
 }
@@ -503,6 +504,7 @@ ti_write_reg(pru_t pru, unsigned int pru_number, uint32_t reg, uint32_t val)
 		return -1;
 	if (pru_number > 1 || reg > 31)
 		return -1;
+	DPRINTF("write reg %u val %u\n", reg, val);
 	ti_reg_write_4(pru->mem, AM33XX_PRUnDBG(pru_number) + reg * 4, val);
 
 	return 0;
@@ -514,11 +516,11 @@ ti_get_pc(pru_t pru, unsigned int pru_number)
 	uint32_t reg;
 
 	if (pru->md_stor[0] == AM18XX_REV)
-		reg = AM18XX_PRUnCTL(pru_number);
+		reg = AM18XX_PRUnSTATUS(pru_number);
 	else
-		reg = AM33XX_PRUnCTL(pru_number);
+		reg = AM33XX_PRUnSTATUS(pru_number);
 
-	return (ti_reg_read_4(pru->mem, reg + 0x4) & 0xffff) * 4;
+	return (ti_reg_read_4(pru->mem, reg) & 0xffff) * 4;
 }
 
 static int
@@ -534,7 +536,7 @@ ti_set_pc(pru_t pru, unsigned int pru_number, uint16_t pc)
 		reg = AM33XX_PRUnCTL(pru_number);
 
 	val = ti_reg_read_4(pru->mem, reg);
-	val &= 0x0000ffff;;
+	val &= 0x0000ffff;
 	val |= (uint32_t)pc << 16;
 	ti_reg_write_4(pru->mem, reg, val);
 
