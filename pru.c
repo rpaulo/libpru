@@ -217,7 +217,7 @@ pru_write_reg(pru_t pru, unsigned int pru_number, enum pru_reg reg,
     uint32_t val)
 {
 	if (reg == REG_PC)
-		return pru->set_pc(pru, pru_number, (uint16_t)reg);
+		return pru->set_pc(pru, pru_number, (uint16_t)val);
 	else
 		return pru->write_reg(pru, pru_number, reg, val);
 }
