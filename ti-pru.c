@@ -197,6 +197,12 @@ ti_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 	return (ti_reg_read_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem));
 }
 
+static uint32_t
+ti_read_mem(pru_t pru, unsigned int pru_number __unused, uint32_t mem)
+{
+	/* XXX missing bounds check. */
+	return (ti_reg_read_4(pru->mem, AM33XX_RAM_REG + mem));
+}
 
 static void
 ti_reg_str(uint8_t reg, char *buf, size_t len)
@@ -601,6 +607,7 @@ ti_initialise(pru_t pru)
 	pru->check_intr = ti_check_intr;
 	pru->deinit = ti_deinit;
 	pru->read_imem = ti_read_imem;
+	pru->read_mem = ti_read_mem;
 	pru->disassemble = ti_disassemble;
 	pru->read_reg = ti_read_reg;
 	pru->write_reg = ti_write_reg;

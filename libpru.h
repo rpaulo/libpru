@@ -82,6 +82,11 @@ int	pru_upload(pru_t, unsigned int, const char *);
  */
 int	pru_wait(pru_t, unsigned int);
 /*
+ * Read the data memory.
+ */
+uint32_t pru_read_mem(pru_t, unsigned int, uint32_t);
+
+/*
  * Read the instruction memory.
  */
 uint32_t pru_read_imem(pru_t, unsigned int, uint32_t);
@@ -92,7 +97,6 @@ uint32_t pru_read_imem(pru_t, unsigned int, uint32_t);
 int	pru_disassemble(pru_t, uint32_t, char *, size_t);
 
 enum pru_reg {
-	REG_INVALID = -1,
 	REG_R0 = 0,
 	REG_R1,
 	REG_R2,
@@ -126,6 +130,8 @@ enum pru_reg {
 	REG_R30,
 	REG_R31,
 	REG_PC,
+
+	REG_INVALID,
 };
 
 /*

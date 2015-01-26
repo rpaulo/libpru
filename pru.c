@@ -198,6 +198,12 @@ pru_wait(pru_t pru, unsigned int pru_number)
 }
 
 uint32_t
+pru_read_mem(pru_t pru, unsigned int pru_number, uint32_t mem)
+{
+	return pru->read_mem(pru, pru_number, mem);
+}
+
+uint32_t
 pru_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 {
 	return pru->read_imem(pru, pru_number, mem);
