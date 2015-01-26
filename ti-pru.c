@@ -40,6 +40,13 @@
 #include <pru-private.h>
 #include <ti-pru.h>
 
+static uint8_t
+ti_reg_read_1(char *mem, unsigned int reg)
+{
+	DPRINTF("reg 0x%x\n", reg);
+	return *(volatile uint8_t *)(void *)(mem + reg);
+}
+
 static uint32_t
 ti_reg_read_4(char *mem, unsigned int reg)
 {
@@ -197,11 +204,11 @@ ti_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 	return (ti_reg_read_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem));
 }
 
-static uint32_t
+static uint8_t
 ti_read_mem(pru_t pru, unsigned int pru_number __unused, uint32_t mem)
 {
 	/* XXX missing bounds check. */
-	return (ti_reg_read_4(pru->mem, AM33XX_RAM_REG + mem));
+	return (ti_reg_read_1(pru->mem, AM33XX_RAM_REG + mem));
 }
 
 static void

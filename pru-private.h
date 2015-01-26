@@ -41,7 +41,7 @@ struct pru {
 	int (*check_intr)(pru_t);
 	int (*deinit)(pru_t);
 	uint32_t (*read_imem)(pru_t, unsigned int, uint32_t);
-	uint32_t (*read_mem)(pru_t, unsigned int, uint32_t);
+	uint8_t (*read_mem)(pru_t, unsigned int, uint32_t);
 	void (*write_imem)(pru_t, unsigned int, uint32_t, uint32_t);
 	uint32_t (*read_reg)(pru_t, unsigned int, uint32_t);
 	int (*write_reg)(pru_t, unsigned int, uint32_t, uint32_t);

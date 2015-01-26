@@ -84,7 +84,7 @@ int	pru_wait(pru_t, unsigned int);
 /*
  * Read the data memory.
  */
-uint32_t pru_read_mem(pru_t, unsigned int, uint32_t);
+uint8_t pru_read_mem(pru_t, unsigned int, uint32_t);
 
 /*
  * Read the instruction memory.
