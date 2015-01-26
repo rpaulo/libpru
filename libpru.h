@@ -92,6 +92,7 @@ uint32_t pru_read_imem(pru_t, unsigned int, uint32_t);
 int	pru_disassemble(pru_t, uint32_t, char *, size_t);
 
 enum pru_reg {
+	REG_INVALID = -1,
 	REG_R0 = 0,
 	REG_R1,
 	REG_R2,
