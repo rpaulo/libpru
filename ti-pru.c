@@ -130,14 +130,18 @@ ti_upload(pru_t pru, unsigned int pru_number, const char *buffer, size_t size)
 	DPRINTF("pru %d\n", pru_number);
 	iram = (unsigned char *)pru->mem;
 	if (pru->md_stor[0] == AM18XX_REV) {
-		if (size > AM18XX_IRAM_SIZE)
+		if (size > AM18XX_IRAM_SIZE) {
+			errno = EFBIG
 			return -1;
+		}
 		iram += AM18XX_PRUnIRAM(pru_number);
 		DPRINTF("IRAM at %p\n", iram);
 		memset(iram, 0, AM18XX_IRAM_SIZE);
 	} else {
-		if (size > AM33XX_IRAM_SIZE)
+		if (size > AM33XX_IRAM_SIZE) {
+			errno = EFBIG;
 			return -1;
+		}
 		iram += AM33XX_PRUnIRAM(pru_number);
 		DPRINTF("IRAM at %p\n", iram);
 		memset(iram, 0, AM33XX_IRAM_SIZE);
