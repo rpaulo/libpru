@@ -131,7 +131,7 @@ ti_upload(pru_t pru, unsigned int pru_number, const char *buffer, size_t size)
 	iram = (unsigned char *)pru->mem;
 	if (pru->md_stor[0] == AM18XX_REV) {
 		if (size > AM18XX_IRAM_SIZE) {
-			errno = EFBIG
+			errno = EFBIG;
 			return -1;
 		}
 		iram += AM18XX_PRUnIRAM(pru_number);
