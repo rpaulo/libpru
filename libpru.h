@@ -78,6 +78,12 @@ int	pru_enable(pru_t, unsigned int);
  */
 int	pru_upload(pru_t, unsigned int, const char *);
 /*
+ * Upload a buffer to be run on the PRU.
+ *
+ * To be safe, the PRU should be reset before this function is called.
+ */
+int	pru_upload_buffer(pru_t, unsigned int, const char *, size_t);
+/*
  * Wait for the PRU to halt.
  */
 int	pru_wait(pru_t, unsigned int);

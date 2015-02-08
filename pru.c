@@ -192,6 +192,14 @@ pru_upload(pru_t pru, unsigned int pru_number, const char *file)
 }
 
 int
+pru_upload_buffer(pru_t pru, unsigned int pru_number, const char *buffer,
+    size_t len)
+{
+	DPRINTF("pru %d buffer %p len %zu\n", pru_number, buffer, len);
+	return pru->upload_buffer(pru, pru_number, buffer, len);
+}
+
+int
 pru_wait(pru_t pru, unsigned int pru_number)
 {
 	return pru->wait(pru, pru_number);
