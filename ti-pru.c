@@ -573,8 +573,10 @@ static int
 ti_insert_breakpoint(pru_t pru, unsigned int pru_number, uint32_t pc,
     uint32_t *orig_ins)
 {
-	*orig_ins = ti_read_imem(pru, pru_number, pc);
-	DPRINTF("inserting breakpoint: pc 0x%x, ins 0x%x\n", pc, *orig_ins);
+	if (orig_ins)
+		*orig_ins = ti_read_imem(pru, pru_number, pc);
+	DPRINTF("inserting breakpoint: pc 0x%x, ins 0x%x\n", pc,
+	    orig_ins ? *orig_ins : 0);
 	ti_write_imem(pru, pru_number, pc, TI_OP_HALT << 24);
 
 	return 0;
