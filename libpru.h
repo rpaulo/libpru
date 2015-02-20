@@ -38,12 +38,14 @@ typedef enum {
 } pru_type_t;
 
 pru_type_t pru_name_to_type(const char *);
+
 /*
  * Allocates and initialises a PRU structure.
  *
  * This is usually the first step to interface with a PRU.
  */
 pru_t	pru_alloc(pru_type_t);
+
 /*
  * Deallocates a PRU structure after stopping the PRU.
  */
@@ -52,6 +54,7 @@ void	pru_free(pru_t);
 void	pru_set_handler(pru_t, void (^)(int));
 #endif
 void	pru_set_handler_f(pru_t, void (*)(int));
+
 /*
  * Resets the PRU.
  *
@@ -59,34 +62,40 @@ void	pru_set_handler_f(pru_t, void (*)(int));
  * To re-enable it, call pru_enable().
  */
 int	pru_reset(pru_t, unsigned int);
+
 /*
  * Disables a specific PRU.
  *
  * Execution can continue with pru_enable().
  */
 int	pru_disable(pru_t, unsigned int);
+
 /*
  * Enables a specific PRU.
  *
  * Execution can be stopped with pru_disable().
  */
 int	pru_enable(pru_t, unsigned int);
+
 /*
  * Upload a file to be run on the PRU.
  *
  * To be safe, the PRU should be reset before this function is called.
  */
 int	pru_upload(pru_t, unsigned int, const char *);
+
 /*
  * Upload a buffer to be run on the PRU.
  *
  * To be safe, the PRU should be reset before this function is called.
  */
 int	pru_upload_buffer(pru_t, unsigned int, const char *, size_t);
+
 /*
  * Wait for the PRU to halt.
  */
 int	pru_wait(pru_t, unsigned int);
+
 /*
  * Read the data memory.
  */
