@@ -48,6 +48,7 @@ struct pru {
 	uint16_t (*get_pc)(pru_t, unsigned int);
 	int (*set_pc)(pru_t, unsigned int, uint16_t);
 	int (*disassemble)(pru_t, uint32_t, char *, size_t);
+	int (*insert_breakpoint)(pru_t, unsigned int, uint32_t, uint32_t *);
 	void (*intr_func)(int);
 #ifdef __BLOCKS__
 	void (^intr_block)(int);

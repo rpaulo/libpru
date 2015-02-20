@@ -205,7 +205,16 @@ static uint32_t
 ti_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 {
 	/* XXX missing bounds check. */
-	return (ti_reg_read_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem));
+	return ti_reg_read_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem);
+}
+
+static int
+ti_write_imem(pru_t pru, unsigned int pru_number, uint32_t mem, uint32_t ins)
+{
+	/* XXX missing bounds check. */
+	ti_reg_write_4(pru->mem, AM33XX_PRUnIRAM(pru_number) + mem, ins);
+
+	return 0;
 }
 
 static uint8_t
@@ -560,6 +569,17 @@ ti_set_pc(pru_t pru, unsigned int pru_number, uint16_t pc)
 	return 0;
 }
 
+static int
+ti_insert_breakpoint(pru_t pru, unsigned int pru_number, uint32_t pc,
+    uint32_t *orig_ins)
+{
+	*orig_ins = ti_read_imem(pru, pru_number, pc);
+	DPRINTF("inserting breakpoint: pc 0x%x, ins 0x%x\n", pc, *orig_ins);
+	ti_write_imem(pru, pru_number, pc, TI_OP_HALT << 24);
+
+	return 0;
+}
+
 int
 ti_initialise(pru_t pru)
 {
@@ -624,6 +644,7 @@ ti_initialise(pru_t pru)
 	pru->write_reg = ti_write_reg;
 	pru->get_pc = ti_get_pc;
 	pru->set_pc = ti_set_pc;
+	pru->insert_breakpoint = ti_insert_breakpoint;
 
 	return 0;
 }

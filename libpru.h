@@ -158,3 +158,8 @@ uint32_t pru_read_reg(pru_t, unsigned int, enum pru_reg);
  * Modify a PRU register.
  */
 int pru_write_reg(pru_t, unsigned int, enum pru_reg, uint32_t);
+
+/*
+ * Inserts a breakpoint instruction, saving the original instruction.
+ */
+int pru_insert_breakpoint(pru_t, unsigned int, uint32_t, uint32_t *);

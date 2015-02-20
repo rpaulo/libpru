@@ -241,3 +241,10 @@ pru_disassemble(pru_t pru, uint32_t opcode, char *buf, size_t len)
 {
 	return pru->disassemble(pru, opcode, buf, len);
 }
+
+int
+pru_insert_breakpoint(pru_t pru, unsigned int pru_number, uint32_t pc,
+    uint32_t *orig_ins)
+{
+	return pru->insert_breakpoint(pru, pru_number, pc, orig_ins);
+}
