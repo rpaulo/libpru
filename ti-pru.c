@@ -80,9 +80,10 @@ ti_disable(pru_t pru, unsigned int pru_number)
 }
 
 static int
-ti_enable(pru_t pru, unsigned int pru_number)
+ti_enable(pru_t pru, unsigned int pru_number, int single_step)
 {
 	unsigned int reg;
+	uint32_t val;
 
 	if (pru_number > 1)
 		return -1;
@@ -91,8 +92,13 @@ ti_enable(pru_t pru, unsigned int pru_number)
 		reg = AM18XX_PRUnCTL(pru_number);
 	else
 		reg = AM33XX_PRUnCTL(pru_number);
-	ti_reg_write_4(pru->mem, reg,
-	    ti_reg_read_4(pru->mem, reg) | CTL_REG_ENABLE);
+	val = ti_reg_read_4(pru->mem, reg);
+	if (single_step)
+		val |= CTL_REG_SINGLE_STEP;
+	else
+		val &= ~CTL_REG_SINGLE_STEP;
+	val |= CTL_REG_ENABLE;
+	ti_reg_write_4(pru->mem, reg, val);
 
 	return 0;
 }
@@ -640,6 +646,7 @@ ti_initialise(pru_t pru)
 	pru->check_intr = ti_check_intr;
 	pru->deinit = ti_deinit;
 	pru->read_imem = ti_read_imem;
+	pru->write_imem = ti_write_imem;
 	pru->read_mem = ti_read_mem;
 	pru->disassemble = ti_disassemble;
 	pru->read_reg = ti_read_reg;

@@ -155,9 +155,9 @@ pru_disable(pru_t pru, unsigned int pru_number)
 }
 
 int
-pru_enable(pru_t pru, unsigned int pru_number)
+pru_enable(pru_t pru, unsigned int pru_number, int single_step)
 {
-	return pru->enable(pru, pru_number);
+	return pru->enable(pru, pru_number, single_step);
 }
 
 int
@@ -215,6 +215,12 @@ uint32_t
 pru_read_imem(pru_t pru, unsigned int pru_number, uint32_t mem)
 {
 	return pru->read_imem(pru, pru_number, mem);
+}
+
+int
+pru_write_imem(pru_t pru, unsigned int pru_number, uint32_t mem, uint32_t ins)
+{
+	return pru->write_imem(pru, pru_number, mem, ins);
 }
 
 uint32_t

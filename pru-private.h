@@ -34,7 +34,7 @@ struct pru {
 	size_t mem_size;
 	unsigned int md_stor[4];
 	int (*disable)(pru_t, unsigned int);
-	int (*enable)(pru_t, unsigned int);
+	int (*enable)(pru_t, unsigned int, int);
 	int (*reset)(pru_t, unsigned int);
 	int (*upload_buffer)(pru_t, unsigned int, const char *, size_t);
 	int (*wait)(pru_t, unsigned int);
@@ -42,7 +42,7 @@ struct pru {
 	int (*deinit)(pru_t);
 	uint32_t (*read_imem)(pru_t, unsigned int, uint32_t);
 	uint8_t (*read_mem)(pru_t, unsigned int, uint32_t);
-	void (*write_imem)(pru_t, unsigned int, uint32_t, uint32_t);
+	int (*write_imem)(pru_t, unsigned int, uint32_t, uint32_t);
 	uint32_t (*read_reg)(pru_t, unsigned int, uint32_t);
 	int (*write_reg)(pru_t, unsigned int, uint32_t, uint32_t);
 	uint16_t (*get_pc)(pru_t, unsigned int);

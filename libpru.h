@@ -75,7 +75,7 @@ int	pru_disable(pru_t, unsigned int);
  *
  * Execution can be stopped with pru_disable().
  */
-int	pru_enable(pru_t, unsigned int);
+int	pru_enable(pru_t, unsigned int, int);
 
 /*
  * Upload a file to be run on the PRU.
@@ -105,6 +105,11 @@ uint8_t pru_read_mem(pru_t, unsigned int, uint32_t);
  * Read the instruction memory.
  */
 uint32_t pru_read_imem(pru_t, unsigned int, uint32_t);
+
+/*
+ * Write to the instruction memory.
+ */
+int pru_write_imem(pru_t, unsigned int, uint32_t, uint32_t);
 
 /*
  * Disassemble the opcode passed in as argument.
