@@ -166,8 +166,8 @@ ti_wait(pru_t pru, unsigned int pru_number)
 	int i;
 
 	DPRINTF("pru %d\n", pru_number);
-	/* 0.5 seconds */
-	ts.tv_nsec = 500000000;
+	/* 0.01 seconds */
+	ts.tv_nsec = 10000000;
 	ts.tv_sec = 0;
 	if (pru_number > 1)
 		return -1;
@@ -179,11 +179,11 @@ ti_wait(pru_t pru, unsigned int pru_number)
 	 * Wait for the PRU to start running.
 	 */
 	i = 0;
-	while (i < 5 && !(ti_reg_read_4(pru->mem, reg) & CTL_REG_RUNSTATE)) {
+	while (i < 10 && !(ti_reg_read_4(pru->mem, reg) & CTL_REG_RUNSTATE)) {
 		nanosleep(&ts, NULL);
 		i++;
 	}
-	if (i == 5)
+	if (i == 10)
 		return -1;
 	while (ti_reg_read_4(pru->mem, reg) & CTL_REG_RUNSTATE)
 		nanosleep(&ts, NULL);
