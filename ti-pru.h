@@ -94,6 +94,7 @@ extern int ti_initialise(pru_t) __hidden;
 #define	TI_OP_MIN	0x18
 #define	TI_OP_MAX	0x1a
 #define	TI_OP_CLR	0x1c
+#define	TI_OP_CLRI	0x1d
 #define	TI_OP_SET	0x1e
 #define	TI_OP_JMP	0x20
 #define	TI_OP_JAL	0x22

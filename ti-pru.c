@@ -269,6 +269,7 @@ ti_disassemble(pru_t pru __unused, uint32_t opcode, char *buf, size_t len)
 	char c_op1[16], c_op2[16], c_op3[16];
 	const char *c_ins;
 
+	DPRINTF("disassembling 0x%x\n", opcode);
 	c_ins = NULL;
 	bzero(c_op1, sizeof(c_op1));
 	bzero(c_op2, sizeof(c_op2));
@@ -342,6 +343,7 @@ ti_disassemble(pru_t pru __unused, uint32_t opcode, char *buf, size_t len)
 		c_ins = "max";
 		break;
 	case TI_OP_CLR:
+	case TI_OP_CLRI:
 		c_ins = "clr";
 		break;
 	case TI_OP_SET:
@@ -469,6 +471,7 @@ ti_disassemble(pru_t pru __unused, uint32_t opcode, char *buf, size_t len)
 	/* Instructions with immediate values */
 	case TI_OP_ADDI:
 	case TI_OP_ADCI:
+	case TI_OP_CLRI:
 	case TI_OP_SUBI:
 	case TI_OP_SUCI:
 	case TI_OP_LSLI:
