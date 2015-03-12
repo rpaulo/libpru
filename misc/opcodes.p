@@ -35,6 +35,7 @@ not r0, r1
 min r0, r1, r2
 max r0, r1, r2
 clr r0, r1
+clr r0, r1, 4
 set r0, r1, r2
 lmbd r0, r1, r2
 mov r0, r1
@@ -65,6 +66,7 @@ qblt foo, r0.w0, 1
 qble foo, r0.w0, 1
 qbeq foo, r0.w0, 1
 qbne foo, r0.w0, 1
+qbne foo, r0, 0
 qba foo
 qbbs foo, r0, r1
 qbbc foo, r0, r1
