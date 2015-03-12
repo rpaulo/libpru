@@ -636,6 +636,8 @@ ti_initialise(pru_t pru)
 		munmap(pru->mem, pru->mem_size);
 		return EINVAL;
 	}
+	ti_disable(pru, 0);
+	ti_disable(pru, 1);
 	ti_reset(pru, 0);
 	ti_reset(pru, 1);
 	pru->disable = ti_disable;
