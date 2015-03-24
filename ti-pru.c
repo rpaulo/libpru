@@ -203,6 +203,7 @@ ti_deinit(pru_t pru)
 {
 	if (pru->mem != MAP_FAILED)
 		munmap(pru->mem, pru->mem_size);
+	close(pru->fd);
 
 	return 0;
 }
@@ -610,6 +611,7 @@ ti_initialise(pru_t pru)
 	}
 	if (fd < 0)
 		return EINVAL;
+	pru->fd = fd;
 	/* N.B.: The order matters. */
 	for (i = 0; i < sizeof(mmap_sizes)/sizeof(mmap_sizes[0]); i++) {
 		pru->mem = mmap(0, mmap_sizes[i], PROT_READ|PROT_WRITE,
@@ -620,10 +622,10 @@ ti_initialise(pru_t pru)
 			break;
 		}
 	}
-	close(fd);
 	if (pru->mem == MAP_FAILED) {
 		DPRINTF("mmap failed %d\n", saved_errno);
 		errno = saved_errno;
+		close(fd);
 		return -1;
 	}
 	/*
@@ -637,6 +639,7 @@ ti_initialise(pru_t pru)
 		pru->md_stor[0] = AM33XX_REV;
 	} else {
 		munmap(pru->mem, pru->mem_size);
+		close(fd);
 		return EINVAL;
 	}
 	ti_disable(pru, 0);
