@@ -33,6 +33,7 @@
 
 #include <sys/errno.h>
 #include <sys/types.h>
+#include <sys/event.h>
 #include <sys/mman.h>
 #include <sys/cdefs.h>
 
@@ -194,8 +195,15 @@ ti_wait(pru_t pru, unsigned int pru_number)
 static int
 ti_check_intr(pru_t pru)
 {
-	(void)pru;
-	return 0;
+	struct kevent change, event;
+	int nev;
+
+	EV_SET(&change, pru->fd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+	nev = kevent(pru->kd, &change, 1, &event, 1, NULL);
+	if (nev <= 0)
+		return -1;
+	else
+		return event.data;
 }
 
 static int

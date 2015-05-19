@@ -33,6 +33,7 @@
 #include <pthread.h>
 
 #include <sys/types.h>
+#include <sys/event.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
@@ -87,6 +88,7 @@ pru_alloc(pru_type_t type)
 		return NULL;
 	bzero(pru, sizeof(*pru));
 	pru->type = type;
+	pru->kd = kqueue();
 	switch (pru->type) {
 	case PRU_TYPE_TI:
 		if (ti_initialise(pru) != 0) {
@@ -123,6 +125,7 @@ pru_free(pru_t pru)
 	if (pru->intr_block)
 		Block_release(pru->intr_block);
 #endif
+	close(pru->kd);
 	free(pru);
 }
 
