@@ -142,7 +142,7 @@ ti_upload(pru_t pru, unsigned int pru_number, const char *buffer, size_t size)
 			return -1;
 		}
 		iram += AM18XX_PRUnIRAM(pru_number);
-		DPRINTF("IRAM at %p\n", iram);
+		DPRINTF("IRAM at %p\n", (void*)iram);
 		memset(iram, 0, AM18XX_IRAM_SIZE);
 	} else {
 		if (size > AM33XX_IRAM_SIZE) {
@@ -150,10 +150,10 @@ ti_upload(pru_t pru, unsigned int pru_number, const char *buffer, size_t size)
 			return -1;
 		}
 		iram += AM33XX_PRUnIRAM(pru_number);
-		DPRINTF("IRAM at %p\n", iram);
+		DPRINTF("IRAM at %p\n", (void*)iram);
 		memset(iram, 0, AM33XX_IRAM_SIZE);
 	}
-	DPRINTF("copying buf %p size %zu\n", buffer, size);
+	DPRINTF("copying buf %p size %zu\n", (const void *)buffer, size);
 	memcpy(iram, buffer, size);
 
 	return 0;
@@ -640,10 +640,10 @@ ti_initialise(pru_t pru)
 	 * Use the md_stor field to save the revision.
 	 */
 	if (ti_reg_read_4(pru->mem, AM18XX_INTC_REG) == AM18XX_REV) {
-		DPRINTF("found AM18XX PRU @ %p\n", pru->mem);
+		DPRINTF("found AM18XX PRU @ %p\n", (void *)pru->mem);
 		pru->md_stor[0] = AM18XX_REV;
 	} else if (ti_reg_read_4(pru->mem, AM33XX_INTC_REG) == AM33XX_REV) {
-		DPRINTF("found AM33XX PRU @ %p\n", pru->mem);
+		DPRINTF("found AM33XX PRU @ %p\n", (void *)pru->mem);
 		pru->md_stor[0] = AM33XX_REV;
 	} else {
 		munmap(pru->mem, pru->mem_size);

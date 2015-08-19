@@ -111,7 +111,7 @@ pru_alloc(pru_type_t type)
 		errno = EINVAL; /* XXX */
 		return NULL;
 	}
-	DPRINTF("pru %p allocated and initialised\n", pru);
+	DPRINTF("pru %p allocated and initialised\n", (void *)pru);
 
 	return pru;
 }
@@ -119,7 +119,7 @@ pru_alloc(pru_type_t type)
 void
 pru_free(pru_t pru)
 {
-	DPRINTF("pru %p\n", pru);
+	DPRINTF("pru %p\n", (void *)pru);
 	pru->deinit(pru);
 #ifdef __BLOCKS__
 	if (pru->intr_block)
@@ -141,7 +141,7 @@ pru_set_handler(pru_t pru, void (^block)(int))
 void
 pru_set_handler_f(pru_t pru, void (*f)(int))
 {
-	DPRINTF("function %p\n", f);
+	DPRINTF("function %p\n", (void *)f);
 	pru->intr_func = f;
 }
 
@@ -198,7 +198,7 @@ int
 pru_upload_buffer(pru_t pru, unsigned int pru_number, const char *buffer,
     size_t len)
 {
-	DPRINTF("pru %d buffer %p len %zu\n", pru_number, buffer, len);
+	DPRINTF("pru %d buffer %p len %zu\n", pru_number, (const void *)buffer, len);
 	return pru->upload_buffer(pru, pru_number, buffer, len);
 }
 
