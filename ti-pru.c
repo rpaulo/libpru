@@ -203,7 +203,7 @@ ti_check_intr(pru_t pru)
 	if (nev <= 0)
 		return -1;
 	else
-		return event.data;
+		return (int)event.data;
 }
 
 static int

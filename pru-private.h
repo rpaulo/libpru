@@ -26,10 +26,10 @@
 #pragma once
 
 struct pru {
+	pthread_t thread;
 	int fd;
 	int kd; /* kqueue */
 	pru_type_t type;
-	pthread_t thread;
 	/* Abstraction layer */
 	char *mem;
 	size_t mem_size;
